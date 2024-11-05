@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import { neutral } from "tailwindcss/colors";
 
 const config: Config = {
   content: [
@@ -8,9 +9,11 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+      borderColor: {
+        DEFAULT: neutral["500"],
+      },
+      borderRadius: {
+        DEFAULT: "0.5rem",
       },
     },
   },

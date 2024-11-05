@@ -1,101 +1,207 @@
-import Image from "next/image";
+"use client";
+
+import { getFluidCSSSizeValue } from "@/core/utils/create-css-size-value";
+import { useTheme } from "./state";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const theme = useTheme();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const sizes = theme.getSizes();
+
+  return (
+    <>
+      <div className="p-8">
+        <div className="max-w-[30rem]">
+          <h1 className="text-3xl font-bold">Sizes</h1>
+          <p>Configure all sizes.</p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        <div className="flex gap-4 mt-8">
+          {/* Breakpoints */}
+          {theme.config.breakpoints.map((width, index) => {
+            const inputID = `breakpoint-input-${index}`;
+            return (
+              <div key={index} className="flex flex-col gap-2">
+                <label htmlFor={inputID} className="font-medium">
+                  {index === 0 ? "sm-view" : "lg-view"}
+                </label>
+                <input
+                  id={inputID}
+                  className="font-medium w-24 h-7 px-3 rounded bg-neutral-200 min-w-0 outline-none"
+                  type="number"
+                  value={width}
+                  onChange={(e) =>
+                    theme.updateBreakpoint(
+                      index === 0 ? "sm" : "lg",
+                      Number(e.currentTarget.value)
+                    )
+                  }
+                />
+              </div>
+            );
+          })}
+
+          {/* Min Max View */}
+          {(["min", "max"] as const).map((type) => {
+            const inputID = `view-input-${type}`;
+
+            const configValue =
+              type === "min"
+                ? theme.config.minMaxView[0]
+                : theme.config.minMaxView[1];
+
+            const breakpointFallbackValue =
+              type === "min"
+                ? theme.config.breakpoints[0]
+                : theme.config.breakpoints[theme.config.breakpoints.length - 1];
+            const updateFn =
+              type === "min" ? theme.updateMinView : theme.updateMaxView;
+
+            return (
+              <div key={type} className="flex flex-col gap-2">
+                <label htmlFor={inputID} className="font-medium">
+                  {type === "min" ? "min-view" : "max-view"}
+                </label>
+                <input
+                  id={inputID}
+                  className="font-medium w-24 h-7 px-3 rounded bg-neutral-200 min-w-0 outline-none"
+                  type="number"
+                  value={configValue || breakpointFallbackValue || 0}
+                  onChange={(e) => updateFn(Number(e.currentTarget.value))}
+                />
+              </div>
+            );
+          })}
+
+          {/* Base */}
+          {theme.config.base.map((baseSize, index) => {
+            const inputID = `base-input-${index}`;
+            return (
+              <div key={index} className="flex flex-col gap-2">
+                <label htmlFor={inputID} className="font-medium">
+                  {index === 0 ? "sm-base" : "lg-base"}
+                </label>
+                <input
+                  id={inputID}
+                  step="0.01"
+                  className="font-medium w-24 h-7 px-3 rounded bg-neutral-200 min-w-0 outline-none"
+                  type="number"
+                  value={baseSize}
+                  onChange={(e) =>
+                    theme.setBaseSize(
+                      index === 0
+                        ? [Number(e.currentTarget.value), theme.config.base[1]]
+                        : [theme.config.base[0], Number(e.currentTarget.value)]
+                    )
+                  }
+                />
+              </div>
+            );
+          })}
+
+          {/* Ratio */}
+          {theme.config.ratio.map((ratio, index) => {
+            const inputID = `ratio-input-${index}`;
+            return (
+              <div key={index} className="flex flex-col gap-2">
+                <label htmlFor={inputID} className="font-medium">
+                  {index === 0 ? "sm-ratio" : "lg-ratio"}
+                </label>
+                <input
+                  id={inputID}
+                  step="0.01"
+                  className="font-medium w-24 h-7 px-3 rounded bg-neutral-200 min-w-0 outline-none"
+                  type="number"
+                  value={ratio}
+                  onChange={(e) =>
+                    theme.setScaleRatio(
+                      index === 0
+                        ? [Number(e.currentTarget.value), theme.config.ratio[1]]
+                        : [theme.config.ratio[0], Number(e.currentTarget.value)]
+                    )
+                  }
+                />
+              </div>
+            );
+          })}
+
+          {/* Size Count */}
+          <div className="flex flex-col gap-2">
+            <label htmlFor="size-count-input" className="font-medium">
+              size-count
+            </label>
+            <input
+              id="size-count-input"
+              step="1"
+              className="font-medium w-24 h-7 px-3 rounded bg-neutral-200 min-w-0 outline-none"
+              type="number"
+              value={theme.config.size}
+              onChange={(e) =>
+                theme.setSizeCount(Number(e.currentTarget.value))
+              }
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="divide-y border-y">
+        {sizes.map((size, index) => {
+          const sizeCSSValue = getFluidCSSSizeValue({
+            sizeRange: [size.sm, size.lg],
+            viewRange: [
+              theme.config.breakpoints[0],
+              theme.config.breakpoints[theme.config.breakpoints.length - 1],
+            ],
+          });
+
+          return (
+            <div
+              key={index}
+              className="px-8 flex justify-between items-stretch"
+            >
+              <input
+                className="font-medium flex-[10rem] flex-grow-0 p-4 pl-0 min-w-0 border-e"
+                value={size.name}
+                readOnly
+              />
+              <input
+                className="font-medium flex-[4rem] flex-grow-0 m-4 h-7 px-3 rounded bg-neutral-200 min-w-0 outline-none"
+                value={parseFloat(size.sm.toFixed(2))}
+                readOnly
+              />
+              <div className="flex-1 overflow-hiddenx py-4">
+                <div className="relative h-7 rounded-r overflow-hidden bg-white">
+                  <div
+                    className="absolute h-full bg-neutral-300 rounded"
+                    style={{ width: `${size.lg}rem` }}
+                  />
+                  <div
+                    className="absolute h-full bg-neutral-900 rounded"
+                    style={{ width: `${size.sm}rem` }}
+                  />
+                  <div
+                    className="absolute size-3 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-white rounded-full mix-blend-difference"
+                    style={{ left: sizeCSSValue }}
+                  />
+                </div>
+              </div>
+              <input
+                className="font-medium flex-[4rem] flex-grow-0 h-7 m-4 px-3 me-0 rounded bg-neutral-200 min-w-0 outline-none"
+                value={parseFloat(size.lg.toFixed(2))}
+                readOnly
+              />
+            </div>
+          );
+        })}
+      </div>
+      <div className="mt-24 p-8">
+        <pre>
+          {JSON.stringify(
+            sizes.map((size) => [size.name, size.sizeValue]),
+            null,
+            2
+          )}
+        </pre>
+      </div>
+    </>
   );
 }
