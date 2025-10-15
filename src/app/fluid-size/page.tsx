@@ -34,7 +34,7 @@ interface SizeConfig {
   minimum: LimitConfig;
 }
 
-export interface SizeStore {
+interface SizeStore {
   config: SizeConfig;
 
   updateMaximum: (config: LimitConfig) => void;
@@ -43,7 +43,7 @@ export interface SizeStore {
   updateMinimum: (config: LimitConfig) => void;
 }
 
-export const useSize = create<SizeStore>((set, get) => ({
+const useSize = create<SizeStore>((set) => ({
   config: {
     maximum: { type: "custom", size: 30 },
     large: { size: 16, viewport: 80 },
