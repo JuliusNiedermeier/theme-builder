@@ -82,12 +82,12 @@ export const getFluidCSSSizeValue = ({
 
   if (!maxSizeConfig) {
     const minSizeLimit = getSizeLimit(minSizeConfig!, slope, rem);
-    return `min(${minSizeLimit}rem, ${scalingPart})` as const;
+    return `max(${minSizeLimit}rem, ${scalingPart})` as const;
   }
 
   if (!minSizeConfig) {
     const maxSizeLimit = getSizeLimit(maxSizeConfig, slope, rem);
-    return `max(${maxSizeLimit}rem, ${scalingPart})` as const;
+    return `min(${maxSizeLimit}rem, ${scalingPart})` as const;
   }
 
   const [minSizeLimit, maxSizeLimit] = [
